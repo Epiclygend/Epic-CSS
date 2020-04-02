@@ -68,7 +68,38 @@ function Table(data, tbl = document.createElement('TABLE'), options = {}) {
 	}
 }
 
-// specified function
+// Components Helper Function
+const getElsBy = (CSSselector,funcRetValueID) => {
+	const els = document.querySelectorAll(CSSselector)
+	return [...els].reduce((obj, el) => ({ ...obj, [funcRetValueID(el)]: el }), {})
+}
+const toggleable = () => {
+	let elsObj = getElsBy('[react]', el => el.getAttribute('react'))
+	Object.keys(elsObj).forEach(tId => {
+		Object.defineProperties(elsObj[tId], {
+			temp: {
+				value: {
+					parent: elsObj[tId].parentElement
+				}
+			},
+			toggle: {
+				get() { return this.isConnected },
+				set(show) {
+					if (show) this.temp.parent.appendChild(this)
+					else this.remove()
+				}
+			}
+		})
+	})
+	return elsObj
+}
+
+// Components function
+function toggleEl({rid, callback}) {
+	// let el = toggleable()[rid]
+	// if (callback) callback(el)
+	// return {[rid]: el}
+}
 function loader(appendTo = document.body, loaderElement) {
 	this.appendTo = appendTo
 	if (this.loaderElement) this.loaderElement = loaderElement
