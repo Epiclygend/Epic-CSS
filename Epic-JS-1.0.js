@@ -75,28 +75,26 @@ function Table(data, tbl = document.createElement('TABLE'), options = {}) {
 // Components Helper Function
 const getElsBy = (CSSselector,funcRetValueID) => {
 	const els = document.querySelectorAll(CSSselector)
-	return [...els].reduce((obj, el) => ({ ...obj, [funcRetValueID(el)]: el }), {})
+	return [...els].reduce((obj, el, i) => ({ ...obj, [funcRetValueID(el,i)]: el }), {})
 }
 const known = {}
 function introduce(el, id) {
 	if (known.hasOwnProperty(id)) {
 		console.error(`already known '${id}', both will be forgotten`)
 		delete known[id]
-		return known
+		return false
 	} else {
-		known[id] = {
-			el: el
+		el.when = {}
+		el.specialize = ({when,does}) => {
+			el.when[when] = (el.when[when]) ? [...el.when[when], ...does]:[...does]
+			el.addEventListener(when, e => el.when[when].forEach(cb => cb(e)))
+			return el.when
 		}
-		Object.defineProperties(known[id], {
-			when: {
-				set({when,Do}) {
-					this[`when${when}`] = this[`when${when}`] ? [...this[`when${when}`],Do]:[Do]
-				}
-			}
-		})
-		return known[id]
+		return known[id] = el
 	}
 }
+
+
 const toggleable = (() => {
 	let elsObj = getElsBy('[react]', el => el.getAttribute('react'))
 	Object.keys(elsObj).forEach(tId => {
