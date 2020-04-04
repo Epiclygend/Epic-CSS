@@ -7,11 +7,13 @@ const
 
 if (showBenchmark) { console.time('Benchmark: ') }
 
+
 // helper
 function streplace(elmt,replaced,replace) {
 	let ori = line.textContent.match(re.between('\\[{1}','\\]{1}'));
 	if (ori) { for (x of ori) elmt.innerHTML = elmt.textContent.replace(replaced,replace) }
 }
+
 
 // DOM helper
 function createNewElement(tag,data,appendTo,...classes) {
@@ -37,6 +39,7 @@ function toggleClass(...arrayElmAndClasstoToggle) {
 		});
 	};
 }
+
 
 // DOM manipulation
 function Table(data, tbl = document.createElement('TABLE'), options = {}) {
@@ -68,12 +71,33 @@ function Table(data, tbl = document.createElement('TABLE'), options = {}) {
 	}
 }
 
+
 // Components Helper Function
 const getElsBy = (CSSselector,funcRetValueID) => {
 	const els = document.querySelectorAll(CSSselector)
 	return [...els].reduce((obj, el) => ({ ...obj, [funcRetValueID(el)]: el }), {})
 }
-const toggleable = () => {
+const known = {}
+function introduce(el, id) {
+	if (known.hasOwnProperty(id)) {
+		console.error(`already known '${id}', both will be forgotten`)
+		delete known[id]
+		return known
+	} else {
+		known[id] = {
+			el: el
+		}
+		Object.defineProperties(known[id], {
+			when: {
+				set({when,Do}) {
+					this[`when${when}`] = this[`when${when}`] ? [...this[`when${when}`],Do]:[Do]
+				}
+			}
+		})
+		return known[id]
+	}
+}
+const toggleable = (() => {
 	let elsObj = getElsBy('[react]', el => el.getAttribute('react'))
 	Object.keys(elsObj).forEach(tId => {
 		Object.defineProperties(elsObj[tId], {
@@ -92,14 +116,20 @@ const toggleable = () => {
 		})
 	})
 	return elsObj
-}
+})()
+
 
 // Components function
-function toggleEl({rid, callback}) {
-	// let el = toggleable()[rid]
-	// if (callback) callback(el)
-	// return {[rid]: el}
-}
+const togglingEl = (() => {
+	let togEls = document.querySelectorAll('[react-to]')
+	togEls.forEach(togEl => {
+		togEl.addEventListener('click', () => {
+			let {toggle} = toggleable[togEl.getAttribute('react-to')]
+
+		})
+	})
+	return togEls
+})()
 function loader(appendTo = document.body, loaderElement) {
 	this.appendTo = appendTo
 	if (this.loaderElement) this.loaderElement = loaderElement
