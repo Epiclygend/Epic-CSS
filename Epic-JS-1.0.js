@@ -87,7 +87,8 @@ function introduce(el, id) {
 		el.when = {}
 		el.specialize = ({when,does}) => {
 			el.when[when] = (el.when[when]) ? [...el.when[when], ...does]:[...does]
-			el.addEventListener(when, e => el.when[when].forEach(cb => cb(e)))
+			el.when[when].forEach(cb =>  el.removeEventListener(when,cb))
+			el.when[when].forEach(cb => el.addEventListener(when,cb))
 			return el.when
 		}
 		return known[id] = el
@@ -96,12 +97,12 @@ function introduce(el, id) {
 
 
 const toggleable = (() => {
-	let elsObj = getElsBy('[react]', el => el.getAttribute('react'))
-	Object.keys(elsObj).forEach(tId => {
-		Object.defineProperties(elsObj[tId], {
+	let els = getElsBy('[react]', el => el.getAttribute('react'))
+	Object.keys(els).forEach(tId => {
+		Object.defineProperties(els[tId], {
 			temp: {
 				value: {
-					parent: elsObj[tId].parentElement
+					parent: els[tId].parentElement
 				}
 			},
 			toggle: {
@@ -112,8 +113,9 @@ const toggleable = (() => {
 				}
 			}
 		})
+		els[tId].toggle = 0
 	})
-	return elsObj
+	return els
 })()
 
 
