@@ -45,8 +45,12 @@ function toggleClass(...arrayElmAndClasstoToggle) {
 function Table(data, tbl = document.createElement('TABLE'), options = {}) {
 	this.data = data,
 	this.options = options,
-	this.elm = tbl,
-	this.elmRow = this.elm.rows;
+	this.elm = tbl
+	// this.elmRow = {
+	// 	get() {
+	// 		return [...this.elm.rows]
+	// 	}
+	// }
 
 	if ('class' in this.options) this.elm.classList.add(...this.options.class)
 	if ('title' in this.options) this.elm.createCaption().textContent = this.options.title
@@ -66,9 +70,18 @@ function Table(data, tbl = document.createElement('TABLE'), options = {}) {
 	}
 	this.addRow = (arrOfCell,toPart = this.elm.tBodies[0]) => {
 		let row = toPart.insertRow()
+		// do some function with row and arrOfCell params
 		if ('eachRow' in this.options) this.options.eachRow(row, arrOfCell)
 		arrOfCell.forEach(cell => (row.insertCell()).innerHTML = cell)
 	}
+
+	Object.defineProperties(this, {
+		elmRows: {
+			get() {
+				return [...this.elm.rows]
+			}
+		}
+	})
 }
 
 
@@ -79,11 +92,15 @@ const getElsBy = (CSSselector,funcRetValueID) => {
 }
 const known = {}
 function introduce(el, id) {
+	el = document.querySelector(el)
+	
 	if (known.hasOwnProperty(id)) {
+		// if exist delete both
 		console.error(`already known '${id}', both will be forgotten`)
 		delete known[id]
 		return false
 	} else {
+		// else add function and regist to known
 		el.when = {}
 		el.specialize = ({when,does}) => {
 			el.when[when] = (el.when[when]) ? [...el.when[when], ...does]:[...does]
